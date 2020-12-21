@@ -101,8 +101,9 @@ $app->any('/editparentlatlongNull/[{par_id}&&{latitude}&&{longitude}]',function 
     });
 
 // get all checkdate 
-    $app->get('/allcheckdate', function ($request, $response, $args) {
-         $sth = $this->db->prepare("SELECT * FROM checkdate2 ORDER BY check_id DESC ");
+    $app->get('/allcheckdate/[{teacher_id}]', function ($request, $response, $args) {
+         $sth = $this->db->prepare("SELECT * FROM `checkdate2` WHERE checkdate2.teacher_id =:teacher_id ORDER BY check_id DESC ");
+         $sth->bindParam("teacher_id", $args['teacher_id']);
         $sth->execute();
         $todos = $sth->fetchAll();
         return $this->response->withJson($todos);
@@ -127,7 +128,7 @@ $app->get('/checkparent2/{par_user}&&{teacher_id}', function ($request, $respons
     return $this->response->withJson($par_user);
 });
 // get all checkname from date 
-    $app->get('/checknamefromdate/{ck_date}&&{st_id}', function ($request, $response, $args) {
+    $app->get('/checknamefromdate/{ck_date}&&{class_id}', function ($request, $response, $args) {
          $sth = $this->db->prepare("SELECT * FROM `checkstudentname2`,`classroom2`,`student2`,`checkdate2` WHERE  checkstudentname2.st_id = student2.st_id  
          AND checkstudentname2.ck_date = checkdate2.check_data and  student2.class_id = classroom2.class_id and checkstudentname2.ck_date=:ck_date and classroom2.class_id=:class_id ORDER BY student2.student_name ASC ");
          $sth->bindParam("ck_date", $args['ck_date']);
@@ -452,18 +453,12 @@ $app->get('/checkparent2/{par_user}&&{teacher_id}', function ($request, $respons
         $sth->bindParam("teacher_id", $input['teacher_id']);
         
         $input['id'] = $this->db->lastInsertId();
-        if( $sth->execute()){
-            $callback = array(
-                status => 200,
-                msg => 'Insert success'
-            );
+        if ($sth->execute()){
+            $err = "Success";
         }else{
-            $callback = array(
-                'status' => 404,
-                'msg' => 'Insert Fail'
-            );
+            $err = "Fail";
         }
-        return $this->response->withJson($callback);
+        return $this->response->withJson($err);
     });
 
 
@@ -476,18 +471,12 @@ $app->get('/checkparent2/{par_user}&&{teacher_id}', function ($request, $respons
         $sth->bindParam("teacher_id", $input['teacher_id']);
         
         $input['id'] = $this->db->lastInsertId();
-        if( $sth->execute()){
-            $callback = array(
-                status => 200,
-                msg => 'Insert success'
-            );
+        if ($sth->execute()){
+            $err = "Success";
         }else{
-            $callback = array(
-                'status' => 404,
-                'msg' => 'Insert Fail'
-            );
+            $err = "Fail";
         }
-        return $this->response->withJson($callback);
+        return $this->response->withJson($err);
     });
        // register
        $app->post('/adddate2', function ($request, $response) {
@@ -526,18 +515,14 @@ $app->get('/checkparent2/{par_user}&&{teacher_id}', function ($request, $respons
         $sth->bindParam("par_user", $input['par_user']);
         
         $input['id'] = $this->db->lastInsertId();
-        if( $sth->execute()){
-            $callback = array(
-                status => 200,
-                msg => 'Insert success'
-            );
+        
+        if ($sth->execute()){
+            $err = "Success";
         }else{
-            $callback = array(
-                'status' => 404,
-                'msg' => 'Insert Fail'
-            );
+            $err = "Fail";
         }
-        return $this->response->withJson($callback);
+          
+        return $this->response->withJson($err);
     }); 
        // registerstudent 
        $app->post('/registerstudent', function ($request, $response) {
@@ -815,4 +800,22 @@ $app->get('/searchclassroom/[{query}]', function ($request, $response, $args) {
    return $this->response->withJson($todos);
 });
 
-    
+
+
+// angular
+
+$app->get('/studentId/{student_id}', function ($request, $response, $args) {
+    $sth = $this->db->prepare("SELECT * FROM student2 WHERE student2.st_id =:student_id");
+    $sth->bindParam("student_id", $args['student_id']);
+    $sth->execute();
+    $todos = $sth->fetch();   
+    return $this->response->withJson($todos);
+});
+
+$app->get('/checkparentuser/[{par_user}]', function ($request, $response, $args) {
+    $sth = $this->db->prepare("SELECT * FROM parent2 where par_user=:par_user ");
+    $sth->bindParam("par_user", $args['par_user']);
+   $sth->execute();
+   $todos = $sth->fetchAll();
+   return $this->response->withJson($todos);
+});

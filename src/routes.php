@@ -337,13 +337,13 @@ $app->get('/checkparent2/{par_user}&&{teacher_id}', function ($request, $respons
     });
 
     // setting student
-    $app->any('/settingstudent2/[{ck_id}&&{st_id}&&{ck_date}&&{ck_status}&&{ck_receive}&&{ck_other}]',function ($request, $response, $args){
-    $sql = "UPDATE checkstudentname2 SET st_id=:st_id,ck_date=:ck_date,ck_status=:ck_status,ck_receive=:ck_receive,ck_other=:ck_other WHERE ck_id=:ck_id";
+    $app->any('/settingstudent2/[{ck_id}&&{st_id}&&{ck_date}&&{ck_study}&&{ck_receive}&&{ck_other}]',function ($request, $response, $args){
+    $sql = "UPDATE checkstudentname2 SET st_id=:st_id,ck_date=:ck_date,ck_study=:ck_study,ck_receive=:ck_receive,ck_other=:ck_other WHERE ck_id=:ck_id";
     $sth = $this->db->prepare($sql);
     $sth->bindParam("ck_id", $args['ck_id']);
     $sth->bindParam("st_id", $args['st_id']);
     $sth->bindParam("ck_date", $args['ck_date']);
-    $sth->bindParam("ck_status", $args['ck_status']);
+    $sth->bindParam("ck_study", $args['ck_study']);
     $sth->bindParam("ck_receive", $args['ck_receive']);
     $sth->bindParam("ck_other", $args['ck_other']);
    
@@ -395,18 +395,12 @@ $app->get('/checkparent2/{par_user}&&{teacher_id}', function ($request, $respons
         $sth->bindParam("teacher_longitude", $input['teacher_longitude']);
         
         $input['id'] = $this->db->lastInsertId();
-        if( $sth->execute()){
-            $callback = array(
-                status => 200,
-                msg => 'Insert success'
-            );
+        if ($sth->execute()){
+            $err = "Success";
         }else{
-            $callback = array(
-                'status' => 404,
-                'msg' => 'Insert Fail'
-            );
+            $err = "Fail";
         }
-        return $this->response->withJson($callback);
+        return $this->response->withJson($err);
     });
         // setting student 
         $app->post('/addsettingstudent2',function ($request, $response, $args){
@@ -819,3 +813,5 @@ $app->get('/checkparentuser/[{par_user}]', function ($request, $response, $args)
    $todos = $sth->fetchAll();
    return $this->response->withJson($todos);
 });
+
+
